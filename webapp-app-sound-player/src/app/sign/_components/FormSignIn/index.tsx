@@ -5,18 +5,35 @@ import { InputForm } from '@/components/Form/InputForm';
 import Image from 'next/image';
 import React, { useState } from 'react';
 import { IState } from './types';
+import { loginWithEmailAndPassword } from '@/services/firebase/auth';
 
 export const FormSign: React.FC = () => {
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
+  const [loading, setLoading] = useState<boolean>(false);
 
   const handleChangeValueInput =
     (setState: IState) => (event: React.FormEvent<HTMLInputElement>) => {
       setState(event.currentTarget.value);
     };
 
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
+    setLoading(true);
+    try {
+      const user = await loginWithEmailAndPassword(email, password);
+
+      setLoading(false);
+    } catch (err) {
+      setLoading(true);
+    }
+  };
+
   return (
-    <form className="px-4 py-6 border border-white rounded-lg max-w-lg w-full">
+    <form
+      className="px-4 py-6 border border-white rounded-lg max-w-lg w-full"
+      onSubmit={handleSubmit}
+    >
       <div className="flex flex-col items-center">
         <div className="border border-white rounded-full w-36 h-36 flex items-center justify-center bg-white/[0.4]">
           <Image
@@ -54,7 +71,7 @@ export const FormSign: React.FC = () => {
         </div>
         <div className="w-full mt-16 flex items-center justify-center">
           <div className="max-w-xs w-full">
-            <Button title="Enter" />
+            <Button title="Enter" type="submit" loading={loading} />
           </div>
         </div>
       </div>
