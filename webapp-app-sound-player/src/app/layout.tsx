@@ -1,7 +1,5 @@
+import { poppins } from '@/resources/config/fonts';
 import './globals.css';
-import { Inter } from 'next/font/google';
-
-const inter = Inter({ subsets: ['latin'] });
 
 export const metadata = {
   title: 'Create Next App',
@@ -15,7 +13,14 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={inter.className}>{children}</body>
+      <head>
+        <title>Music App Song</title>
+        <meta
+          name="description"
+          content="App musics dashboard for administrate musics."
+        />
+      </head>
+      <body className={poppins.className}>{children}</body>
     </html>
   );
 }
