@@ -1,5 +1,4 @@
 import { CarouselInfo } from '@/components/CarouselInfo';
-import Image from 'next/image';
 import FormSign from './_components/FormSignIn';
 
 export default function Sign() {

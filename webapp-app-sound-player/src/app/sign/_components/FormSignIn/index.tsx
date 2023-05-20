@@ -6,11 +6,14 @@ import Image from 'next/image';
 import React, { useState } from 'react';
 import { IState } from './types';
 import { loginWithEmailAndPassword } from '@/services/firebase/auth';
+import nookies from 'nookies';
+import { useRouter } from 'next/navigation';
 
 export const FormSign: React.FC = () => {
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(false);
+  const { push } = useRouter();
 
   const handleChangeValueInput =
     (setState: IState) => (event: React.FormEvent<HTMLInputElement>) => {
@@ -23,6 +26,8 @@ export const FormSign: React.FC = () => {
     try {
       const user = await loginWithEmailAndPassword(email, password);
 
+      nookies.set(null, 'userToken', user.token, { path: '/' });
+      push('/');
       setLoading(false);
     } catch (err) {
       setLoading(true);
