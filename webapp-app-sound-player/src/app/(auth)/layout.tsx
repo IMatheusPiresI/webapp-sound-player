@@ -1,21 +1,14 @@
+'use client';
 import { poppins } from '@/resources/config/fonts';
 import '../globals.css';
-import { checkAuthWithRedirect } from '@/resources/utils/checkAuthWithRedirect';
+import { AuthProvider } from '@/contexts/authContext';
 
-export const metadata = {
-  title: 'Music App - Song',
-};
-
-export default async function Layout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
-  await checkAuthWithRedirect();
-
+export default function Layout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <body className={poppins.className}>{children}</body>
+      <body className={poppins.className}>
+        <AuthProvider>{children}</AuthProvider>
+      </body>
     </html>
   );
 }

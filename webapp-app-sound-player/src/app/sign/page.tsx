@@ -1,5 +1,6 @@
 import { CarouselInfo } from '@/components/CarouselInfo';
 import FormSign from './_components/FormSignIn';
+import { AuthFormProvider } from './_components/AuthFormProvider';
 
 export default function Sign() {
   return (
@@ -9,7 +10,9 @@ export default function Sign() {
           <CarouselInfo />
         </section>
         <section className="w-full flex-1 bg-neutral-800 flex flex-col justify-center items-center px-4">
-          <FormSign />
+          <AuthFormProvider>
+            <FormSign />
+          </AuthFormProvider>
         </section>
       </div>
     </main>

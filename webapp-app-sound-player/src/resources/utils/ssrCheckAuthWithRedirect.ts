@@ -2,7 +2,7 @@ import { authAdmin } from '@/services/firebase/admin';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 
-export const checkAuthWithRedirect = async () => {
+export const ssrCheckAuthWithRedirect = async () => {
   const cookieStore = cookies();
   const userToken = cookieStore.get('userToken');
 

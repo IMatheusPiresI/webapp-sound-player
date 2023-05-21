@@ -8,8 +8,10 @@ import { IState } from './types';
 import { loginWithEmailAndPassword } from '@/services/firebase/auth';
 import nookies from 'nookies';
 import { useRouter } from 'next/navigation';
+import { useAuthContext } from '@/resources/hooks/useAuthContext';
 
 export const FormSign: React.FC = () => {
+  const { setUser } = useAuthContext();
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(false);
@@ -25,12 +27,15 @@ export const FormSign: React.FC = () => {
     setLoading(true);
     try {
       const user = await loginWithEmailAndPassword(email, password);
+      if (!user) return;
 
+      setUser(user);
       nookies.set(null, 'userToken', user.token, { path: '/' });
       push('/');
-      setLoading(false);
     } catch (err) {
       setLoading(true);
+    } finally {
+      setLoading(false);
     }
   };
 

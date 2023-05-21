@@ -6,6 +6,7 @@ const loginWithEmailAndPassword = async (email: string, password: string) => {
   const user = await signInWithEmailAndPassword(auth, email, password).then(
     async (userCredential) => {
       const userRecovered = await getUserById(userCredential.user.uid);
+      if (!userRecovered) return null;
 
       const token = await userCredential.user.getIdToken();
       return {
