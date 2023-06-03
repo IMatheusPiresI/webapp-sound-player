@@ -12,6 +12,7 @@ export const InputForm: React.FC<IProps> = ({
   value,
   ...rest
 }) => {
+  console.log(value);
   const [showPassword, setShowPassword] = useState<boolean>(false);
 
   const handleToggleShowPassword = () => {
@@ -33,6 +34,7 @@ export const InputForm: React.FC<IProps> = ({
         type={!showPassword ? type : 'text'}
         id={id}
         className="w-full bg-transparent border-none px-4 py-3 pr-14 text-white text-lg outline-0 peer autofill:shadow-[inset_0_0_0px_1000px_rgb(86, 86, 74)]"
+        value={value}
         {...rest}
       />
       <label

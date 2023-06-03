@@ -1,11 +1,18 @@
 import React from 'react';
 import { IProps } from './tyoes';
 
-export const Button: React.FC<IProps> = ({ title, loading, ...rest }) => {
+export const Button: React.FC<IProps> = ({
+  title,
+  loading,
+  disabled,
+  ...rest
+}) => {
   return (
     <button
       {...rest}
-      className="border flex items-center justify-center border-white w-full py-2 rounded-lg text-white text-lg font-medium transition-colors hover:bg-white/[0.1]  uppercase tracking-wide h-12"
+      className={`border flex items-center justify-center border-white w-full py-2 rounded-lg text-white text-lg font-medium transition-colors hover:bg-white/[0.1]  uppercase tracking-wide h-12 ${
+        disabled && 'opacity-50'
+      }`}
     >
       {!loading ? (
         title

@@ -1,46 +1,104 @@
 'use client';
 
-import { IState } from '@/app/sign/_components/FormSignIn/types';
 import { Button } from '@/components/Button';
 import { InputForm } from '@/components/Form/InputForm';
-import React, { useState } from 'react';
-
+import { useFormik } from 'formik';
+import React, { ChangeEvent, useState } from 'react';
+import { musicAddSchema } from './schemas/musicAdd';
+import { IMusicSchema } from './types';
+import { CardMusicBannerFile } from '@/components/CardMusicBannerFile';
+import { CardMusicFileMP3 } from '@/components/CardMusicFileMP3';
+import { storageRef } from '@/services/firebase';
+import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
+import { IMusic } from '@/services/firebase/musics/types';
+import { v4 as uuid } from 'uuid';
+import { addMusic } from '@/services/firebase/musics';
 export const FormAddMusic = () => {
-  const [musicName, setMusicName] = useState<string>('');
-  const [musicCreator, setMusicCreator] = useState<string>('');
-  const [musicGenre, setMusicGenre] = useState<string>('');
+  const [loading, setLoading] = useState<boolean>(false);
+  const [audioSelected, setAudioSelected] = useState<File | null>(null);
+  const [imageMusicBanner, setImageMusicBanner] = useState<string | undefined>(
+    undefined
+  );
 
-  const handleChangeValueInput =
-    (setState: IState) => (event: React.FormEvent<HTMLInputElement>) => {
-      setState(event.currentTarget.value);
-    };
+  const initialValues = {
+    musicName: '',
+    musicCreator: '',
+    musicGenre: '',
+  };
+  const formik = useFormik<IMusicSchema>({
+    initialValues,
+    validationSchema: musicAddSchema,
+    onSubmit: () => handleSave(),
+  });
+
+  const resetForm = () => {
+    formik.resetForm({ values: initialValues });
+    setImageMusicBanner(undefined);
+    setAudioSelected(null);
+  };
+
+  const handleSave = async () => {
+    if (!audioSelected || !imageMusicBanner) return;
+    setLoading(true);
+    try {
+      const fileRef = ref(storageRef, formik.values.musicName);
+      await uploadBytes(fileRef, audioSelected);
+      const downloadURL = await getDownloadURL(fileRef);
+
+      const music: IMusic = {
+        musicName: formik.values.musicName,
+        musicGenre: formik.values.musicGenre,
+        creator: formik.values.musicCreator,
+        id: uuid(),
+        imageBanner: imageMusicBanner,
+        url: downloadURL,
+      };
+
+      await addMusic(music);
+      resetForm();
+    } catch (error) {
+      console.error('Failed to upload file:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSelectImage = (event: ChangeEvent<HTMLInputElement>) => {
+    if (event.target.files && event.target.files[0]) {
+      const file = event.target.files[0];
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onloadend = () => {
+        setImageMusicBanner(reader.result as string);
+      };
+      event.target.value = '';
+    }
+  };
 
   return (
-    <form className="flex-1 w-full flex flex-col items-center mt-10 pb-10">
-      <div className="relative w-full max-w-[250px] h-[325px] border border-white ">
-        <div className="absolute items-center flex flex-col justify-center w-full h-full">
-          <p className="text-white/[0.4] text-center font-medium text-xl">
-            MUSIC
-            <br />
-            BANNER
-          </p>
+    <form
+      className="flex-1 w-full flex flex-col items-center mt-10 pb-10"
+      onSubmit={formik.handleSubmit}
+    >
+      <div className="max-w-xl w-full">
+        <div className="w-full flex items-center justify-center mb-12 overflow-hidden">
+          <CardMusicBannerFile
+            onChange={handleSelectImage}
+            imageSelected={imageMusicBanner}
+          />
         </div>
-      </div>
-
-      <div className="mt-12">
-        <div className="h-20 border border-white mb-6 relative">
-          <div className="absolute h-full w-full flex items-center justify-center">
-            <p className="text-white/[0.4] text-center font-medium text-xl">
-              MUSIC FILE .MP3
-            </p>
-          </div>
-        </div>
+        <CardMusicFileMP3
+          audioSelected={audioSelected}
+          onSelectAudioCallback={setAudioSelected}
+        />
         <select
           name="genre_music"
           id="genre_music"
           defaultValue="Gênero da Música"
           required
-          className="w-full p-3 border border-white rounded-lg bg-transparent text-white outline-none"
+          value={formik.values.musicGenre}
+          onChange={formik.handleChange('musicGenre')}
+          className="w-full mt-6 p-3 border border-white rounded-lg bg-transparent text-white outline-none"
         >
           <option
             className="text-white bg-neutral-800 border border-white hover:bg-neutral-500"
@@ -97,10 +155,10 @@ export const FormAddMusic = () => {
             label="Nome da Música"
             id="music_name"
             type="text"
-            value={musicName}
+            value={formik.values.musicName}
             required
             minLength={3}
-            onChange={handleChangeValueInput(setMusicName)}
+            onChange={formik.handleChange('musicName')}
           />
         </div>
 
@@ -109,14 +167,19 @@ export const FormAddMusic = () => {
             label="Criador da Música"
             id="music_creator"
             type="text"
-            value={musicCreator}
+            value={formik.values.musicCreator}
             required
             minLength={2}
-            onChange={handleChangeValueInput(setMusicCreator)}
+            onChange={formik.handleChange('musicCreator')}
           />
         </div>
         <div className="mt-6 w-full">
-          <Button title="Add Music" />
+          <Button
+            title="Add Music"
+            type="submit"
+            disabled={!formik.isValid}
+            loading={loading}
+          />
         </div>
       </div>
     </form>

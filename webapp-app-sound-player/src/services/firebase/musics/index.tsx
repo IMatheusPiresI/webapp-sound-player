@@ -1,9 +1,9 @@
-import { collection, getDocs } from 'firebase/firestore';
+import { addDoc, collection, getDocs } from 'firebase/firestore';
 import { db } from '..';
 import { IMusic } from './types';
 
+const collectionMusicsRef = collection(db, 'musics');
 const getAllMusics = async () => {
-  const collectionMusicsRef = collection(db, 'musics');
   const querySnapshotMusics = await getDocs(collectionMusicsRef);
 
   let allMusics: IMusic[] = [];
@@ -14,4 +14,8 @@ const getAllMusics = async () => {
   return allMusics;
 };
 
-export { getAllMusics };
+const addMusic = async (musicData: IMusic) => {
+  await addDoc(collectionMusicsRef, musicData);
+};
+
+export { getAllMusics, addMusic };
